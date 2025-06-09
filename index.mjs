@@ -44,99 +44,13 @@ if (!operation) {
     process.exit(1);
 }
 
-async function queryDocument({ documentId }) {
-    if (!documentId) {
-        console.error("Error: --documentId is required for query-document operation.");
-        process.exit(1);
-    }
-    const document = await ragie.documents.get({
-        documentId
-    });
-    console.log(document);
-}
-
-async function retrieveChunks({ query, scope }) {
-    if (!query) {
-        console.error("Error: --query is required for retrieve-chunks operation.");
-        process.exit(1);
-    }
-    const filter = scope ? { scope } : undefined;
-    const response = await ragie.retrievals.retrieve({
-        query,
-        ...(filter && { filter })
-    });
-    console.log(response);
-}
-
-async function generate({ query, scope }) {
-    const openAiApiKey = process.env.OPENAI_API_KEY;
-    if (!openAiApiKey) {
-        console.error("Error: OPENAI_API_KEY environment variable not set.");
-        process.exit(1);
-    }
-    if (!query) {
-        console.error("Error: --query is required for generate operation.");
-        process.exit(1);
-    }
-    try {
-        const filter = scope ? { scope } : undefined;
-        const response = await ragie.retrievals.retrieve({
-            query,
-            ...(filter && { filter })
-        });
-
-        const chunkText = (response.scoredChunks || response.scored_chunks || []).map((chunk) => chunk.text);
-        const systemPrompt = `These are very important to follow:
-
-You are "Ragie AI", a professional but friendly AI chatbot working as an assitant to the user.
-
-Your current task is to help the user based on all of the information available to you shown below.
-Answer informally, directly, and concisely without a heading or greeting but include everything relevant.
-Use richtext Markdown when appropriate including **bold**, *italic*, paragraphs, and lists when helpful.
-If using LaTeX, use double $$ as delimiter instead of single $. Use $$...$$ instead of parentheses.
-Organize information into multiple sections or points when appropriate.
-Don't include raw item IDs or other raw fields from the source.
-Don't use XML or other markup unless requested by the user.
-
-Here is all of the information available to answer the user:
-===
-${chunkText}
-===
-
-If the user asked for a search and there are no results, make sure to let the user know that you couldn't find anything,
-and what they might be able to do to find the information they need.
-
-END SYSTEM INSTRUCTIONS`;
-
-        const openai = new OpenAI({ apiKey: openAiApiKey });
-
-        try {
-            const chatCompletion = await openai.chat.completions.create({
-                messages: [
-                    { role: "system", content: systemPrompt },
-                    { role: "user", content: query },
-                ],
-                model: "gpt-4o",
-            });
-
-            console.log(chatCompletion.choices[0].message.content);
-        } catch (error) {
-            console.error("Failed to get completion from OpenAI:", error);
-            process.exit(1);
-        }
-    } catch (error) {
-        console.error("Failed to retrieve data from Ragie API:", error);
-        process.exit(1);
-    }
-}
-
 (async () => {
     if (operation === "query-document") {
-        await queryDocument(params);
+        // Query a specific document by ID
     } else if (operation === "retrieve-chunks") {
-        await retrieveChunks(params);
+        // Retrieve chunks based on a query
     } else if (operation === "generate") {
-        await generate(params);
+        // Generate a response based on a query
     } else {
         console.error(`Unknown operation: ${operation}`);
         process.exit(1);
