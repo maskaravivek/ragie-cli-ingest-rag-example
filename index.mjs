@@ -38,21 +38,8 @@ const params = parseArgs(rawArgs);
 
 if (!operation) {
     console.log("Usage:");
-    console.log("  node index.js query-document --documentId=<documentId>");
-    console.log("  node index.js retrieve-chunks --query=<query> [--scope=<scope>]");
     console.log("  node index.js generate --query=<query> [--scope=<scope>]");
     process.exit(1);
-}
-
-async function queryDocument({ documentId }) {
-    if (!documentId) {
-        console.error("Error: --documentId is required for query-document operation.");
-        process.exit(1);
-    }
-    const document = await ragie.documents.get({
-        documentId
-    });
-    return document;
 }
 
 async function retrieveChunks({ query, scope }) {
@@ -127,13 +114,7 @@ END SYSTEM INSTRUCTIONS`;
 }
 
 (async () => {
-    if (operation === "query-document") {
-        const response = await queryDocument(params);
-        console.log(response);
-    } else if (operation === "retrieve-chunks") {
-        const response = await retrieveChunks(params);
-        console.log(response);
-    } else if (operation === "generate") {
+    if (operation === "generate") {
         const response = await generate(params);
         console.log(response);
     } else {

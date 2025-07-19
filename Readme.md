@@ -17,6 +17,12 @@ export RAGIE_API_KEY=<YOUR_RAGIE_API_KEY>
 ragie import files data/paul_graham_essay.txt
 ```
 
+Retrieve raw chunks:
+
+```
+ragie retrieve "Cambridge, New York"
+```
+
 ## Install packages
 
 ```
@@ -26,5 +32,5 @@ npm install
 ## Generate LLM responses
 
 ```
- node index.mjs generate --query="What does Chamath think about Davos?"
+node index.mjs generate --query="What does Chamath think about Davos?"
 ```
